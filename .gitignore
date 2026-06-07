@@ -21,3 +21,20 @@ config.php
 *.swp
 .idea/
 .vscode/
+
+# Ignore moodle-plugin-ci installs and runtime data
+ci/
+.ci/
+
+# Ignore Node modules and build output
+node_modules/
+amd/build/
+
+# Ignore release artifacts
+*.zip
+# ...but keep test fixture archives
+!tests/fixtures/*.zip
+
+# Ignore agent tooling state
+.omc/
+.claude/

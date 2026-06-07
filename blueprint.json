@@ -1,0 +1,49 @@
+{
+  "$schema": "https://raw.githubusercontent.com/ateeducacion/moodle-playground/refs/heads/main/assets/blueprints/blueprint-schema.json",
+  "preferredVersions": { "php": "8.3", "moodle": "5.0" },
+  "landingPage": "/contentbank/view.php?id=1",
+  "constants": {
+    "REPO": "ateeducacion/moodle-contenttype_exelearning",
+    "REF": "main",
+    "ADMIN_USER": "admin",
+    "ADMIN_PASS": "password",
+    "ADMIN_EMAIL": "admin@example.com"
+  },
+  "steps": [
+    {
+      "step": "installMoodle",
+      "options": {
+        "adminUser": "{{ADMIN_USER}}",
+        "adminPass": "{{ADMIN_PASS}}",
+        "adminEmail": "{{ADMIN_EMAIL}}",
+        "siteName": "contenttype_exelearning Playground",
+        "locale": "es",
+        "timezone": "Europe/Madrid"
+      }
+    },
+    { "step": "login", "username": "{{ADMIN_USER}}" },
+    {
+      "step": "installMoodlePlugin",
+      "pluginType": "contenttype",
+      "pluginName": "exelearning",
+      "url": "https://github.com/{{REPO}}/archive/refs/heads/{{REF}}.zip"
+    },
+    {
+      "step": "createCategory",
+      "name": "Demo eXeLearning"
+    },
+    {
+      "step": "createCourse",
+      "fullname": "Demo eXeLearning · banco de contenidos",
+      "shortname": "EXECB01",
+      "category": "Demo eXeLearning",
+      "summary": "Curso demo con un paquete eXeLearning almacenado en el banco de contenidos del sistema."
+    },
+    {
+      "step": "runPhpCode",
+      "comment": "Upload a sample eXeLearning package into the system content bank via the content bank API, which triggers contenttype_exelearning upload + extraction. runPhpCode = raw PHP CLI, so require config.php first.",
+      "code": "define('CLI_SCRIPT', true); foreach (['/www/moodle/config.php', getcwd().'/config.php', '/var/www/html/config.php'] as $c) { if (is_file($c)) { require($c); break; } } global $CFG, $DB, $USER; require_once($CFG->libdir.'/filelib.php'); require_once($CFG->dirroot.'/contentbank/contenttype/exelearning/lib.php'); $admin = get_admin(); $USER = $admin; $context = context_system::instance(); if (!$DB->record_exists('contentbank_content', ['contextid' => $context->id, 'contenttype' => 'contenttype_exelearning'])) { $tmp = make_request_directory().'/sample.elpx'; download_file_content('https://raw.githubusercontent.com/ateeducacion/moodle-contenttype_exelearning/main/tests/fixtures/sample.elpx', null, null, false, 300, 20, false, $tmp); $fs = get_file_storage(); $filerecord = ['contextid' => $context->id, 'component' => 'user', 'filearea' => 'draft', 'itemid' => file_get_unused_draft_itemid(), 'filepath' => '/', 'filename' => 'sample.elpx']; $stored = $fs->create_file_from_pathname($filerecord, $tmp); $cb = new \\core_contentbank\\contentbank(); $content = $cb->create_content_from_file($context, $admin->id, $stored); echo 'contentbank id='.$content->get_id().\"\\n\"; }"
+    },
+    { "step": "setLandingPage", "path": "/contentbank/view.php?id=1" }
+  ]
+}

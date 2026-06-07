@@ -15,14 +15,26 @@
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * Strings for component 'contenttype_scorm'.
+ * Privacy provider for the eXeLearning content type.
  *
- * @package    contenttype_scorm
- * @copyright  2025 Área de Tecnología Educativa <ate.educacion@gobiernodecanarias.org>
+ * @package    contenttype_exelearning
+ * @copyright  2026 Área de Tecnología Educativa <ate.educacion@gobiernodecanarias.org>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'SCORM content';
-$string['addscorm'] = 'Add SCORM package';
-$string['privacy:metadata'] = 'The SCORM content type plugin does not store any personal data.';
+namespace contenttype_exelearning\privacy;
 
+/**
+ * Privacy provider. This plugin stores no personal data of its own.
+ */
+class provider implements \core_privacy\local\metadata\null_provider {
+    /**
+     * Get the language string identifier with the component's explanation of why
+     * it stores no data.
+     *
+     * @return string
+     */
+    public static function get_reason(): string {
+        return 'privacy:metadata';
+    }
+}

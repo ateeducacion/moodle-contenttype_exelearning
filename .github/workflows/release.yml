@@ -1,8 +1,15 @@
+---
 name: Release
 
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Release label for package name (e.g. 1.2.3 or 1.2.3-beta)"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -11,17 +18,41 @@ jobs:
   build_and_upload:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+
+      - name: Setup PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
       - name: Set environment variables
         run: |
-          RAW_TAG="${GITHUB_REF##*/}"
-          VERSION_TAG="${RAW_TAG#v}"
-          echo "RELEASE_TAG=${VERSION_TAG}" >> $GITHUB_ENV
-      - name: Create package using the Makefile
-        run: make package VERSION=${RELEASE_TAG}
-      - name: Upload ZIP to the release
-        uses: softprops/action-gh-release@v2
+          if [ "${{ github.event_name }}" = "release" ]; then
+            RAW_TAG="${GITHUB_REF##*/}"
+            VERSION_TAG="${RAW_TAG#v}"
+            echo "RELEASE_TAG=${VERSION_TAG}" >> $GITHUB_ENV
+          else
+            INPUT_RELEASE="${{ github.event.inputs.release_tag }}"
+            if [ -z "$INPUT_RELEASE" ]; then
+              INPUT_RELEASE="manual-$(date +%Y%m%d)-${GITHUB_SHA::7}"
+            fi
+            echo "RELEASE_TAG=${INPUT_RELEASE}" >> $GITHUB_ENV
+          fi
+
+      - name: Create package
+        run: make package RELEASE=${RELEASE_TAG}
+
+      - name: Upload ZIP as workflow artifact
+        uses: actions/upload-artifact@v7
         with:
-          files: contenttype_scorm-${{ env.RELEASE_TAG }}.zip
+          name: contenttype_exelearning-${{ env.RELEASE_TAG }}
+          path: contenttype_exelearning-${{ env.RELEASE_TAG }}.zip
+
+      - name: Upload ZIP to release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v3
+        with:
+          files: contenttype_exelearning-${{ env.RELEASE_TAG }}.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

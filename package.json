@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "grunt": "^1.6.2"
+  },
+  "engines": {
+    "node": "<24"
+  },
+  "engineStrict": true
+}

@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * Capabilities for the eXeLearning content type.
+ * Strings for component 'contenttype_exelearning', language 'es'.
  *
  * @package    contenttype_exelearning
  * @copyright  2026 Área de Tecnología Educativa <ate.educacion@gobiernodecanarias.org>
@@ -24,24 +24,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$capabilities = [
-    'contenttype/exelearning:access' => [
-        'captype' => 'read',
-        'contextlevel' => CONTEXT_SYSTEM,
-        'archetypes' => [
-            'editingteacher' => CAP_ALLOW,
-            'manager' => CAP_ALLOW,
-        ],
-        'clonepermissionsfrom' => 'moodle/contentbank:access',
-    ],
-    'contenttype/exelearning:upload' => [
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_SYSTEM,
-        'riskbitmask' => RISK_SPAM,
-        'archetypes' => [
-            'editingteacher' => CAP_ALLOW,
-            'manager' => CAP_ALLOW,
-        ],
-        'clonepermissionsfrom' => 'moodle/contentbank:upload',
-    ],
-];
+$string['pluginname'] = 'Contenido eXeLearning';
+$string['exelearning:access'] = 'Acceder a contenido eXeLearning en el banco de contenidos';
+$string['exelearning:upload'] = 'Subir nuevo contenido eXeLearning';
+$string['invalidpackage'] = 'El archivo no es un paquete eXeLearning válido: falta index.html en la raíz.';
+$string['packagenotfound'] = 'No se ha podido encontrar el paquete eXeLearning.';
+$string['privacy:metadata'] = 'El plugin de tipo de contenido eXeLearning no almacena ningún dato personal.';

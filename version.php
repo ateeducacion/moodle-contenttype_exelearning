@@ -15,18 +15,18 @@
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * Version information for the SCORM content type.
+ * Version information for the eXeLearning content type.
  *
- * @package    contenttype_scorm
- * @copyright  2025 Área de Tecnología Educativa <ate.educacion@gobiernodecanarias.org>
+ * @package    contenttype_exelearning
+ * @copyright  2026 Área de Tecnología Educativa <ate.educacion@gobiernodecanarias.org>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'contenttype_scorm';
-$plugin->version   = 2024010100;
-$plugin->requires  = 2022041900; // Moodle 4.0 release.
+$plugin->component = 'contenttype_exelearning';
+$plugin->version   = 2026060700;
+$plugin->requires  = 2024042200; // Moodle 4.4 release (minimum with content bank CAN_COPY).
+$plugin->supported = [404, 501];  // Moodle 4.4 LTS to 5.1.
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = 'v1.0';
-
+$plugin->release   = 'dev';

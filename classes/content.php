@@ -15,45 +15,39 @@
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * Content class for SCORM packages.
+ * Content class for eXeLearning packages.
  *
- * @package    contenttype_scorm
- * @copyright  2025 Área de Tecnología Educativa <ate.educacion@gobiernodecanarias.org>
+ * @package    contenttype_exelearning
+ * @copyright  2026 Área de Tecnología Educativa <ate.educacion@gobiernodecanarias.org>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace contenttype_scorm;
+namespace contenttype_exelearning;
 
+use contenttype_exelearning\local\packager;
 use core_contentbank\content as base_content;
-use moodle_url;
 use stored_file;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
- * SCORM content item stored in the content bank.
+ * eXeLearning content item stored in the content bank.
+ *
+ * The original package is kept in the standard contentbank/public file area
+ * (so download and copy keep working); on import it is also extracted into the
+ * plugin's own file area so its index.html can be served and rendered.
  */
 class content extends base_content {
     /**
-     * Returns the URL to view the SCORM package.
+     * Import the uploaded package and extract it for rendering.
      *
-     * @return moodle_url
+     * @param stored_file $file File to store in the content file area.
+     * @return stored_file|null the stored content file or null if discarded.
      */
-    public function get_view_url(): moodle_url {
-        return new moodle_url('/contentbank/scorm/view.php', ['id' => $this->get_id()]);
-    }
+    public function import_file(stored_file $file): ?stored_file {
+        $stored = parent::import_file($file);
+        if ($stored) {
+            packager::extract($stored, (int) $this->get_contextid(), $this->get_id());
+        }
 
-    /**
-     * Returns the stored file associated with this content.
-     *
-     * @return stored_file|null
-     */
-    public function get_file(): ?stored_file {
-        $fs = get_file_storage();
-        $files = $fs->get_area_files($this->get_contextid(), 'contentbank', contenttype::TYPE,
-            $this->get_id(), '/', false);
-
-        return reset($files) ?: null;
+        return $stored;
     }
 }
-

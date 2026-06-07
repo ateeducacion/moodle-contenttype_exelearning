@@ -1,78 +1,122 @@
-# SCORM Content Type Plugin for Moodle Content Bank
+# eXeLearning Content Type for the Moodle Content Bank
 
-This is a Moodle plugin that adds support for SCORM packages in the Content Bank. It allows teachers and content creators to upload `.zip` files containing SCORM packages, manage them within the Content Bank, and potentially reuse them in courses.
+Moodle content bank plugin that lets teachers and content creators upload
+[eXeLearning](https://exelearning.net/) packages (`.elpx` and HTML5 `.zip`
+exports) into the content bank, store and reuse them, and **view them rendered
+inline** — the package is extracted and served in a sandboxed iframe, just like
+`mod_exelearning` does for activities.
+
+## Try in Moodle Playground
+
+Click the badge below to open the `main` branch instantly in Moodle Playground
+with the plugin pre-installed and a sample eXeLearning package already loaded in
+the content bank. Every pull request also generates a playground preview link so
+reviewers can test changes in a live Moodle instance without any local setup.
+
+<a href="https://moodle-playground.com/?blueprint-url=https://raw.githubusercontent.com/ateeducacion/moodle-contenttype_exelearning/refs/heads/main/blueprint.json"><img src="https://raw.githubusercontent.com/ateeducacion/action-moodle-playground-pr-preview/refs/heads/main/assets/playground-preview-button.svg" alt="Preview in Moodle Playground" width="200"></a>
 
 ## Features
 
-- Upload SCORM packages to the Content Bank (`.zip` files with `imsmanifest.xml`).
-- Store metadata and manage files by context.
-- Reuse SCORM content across different courses.
-- Easy integration into Moodle's native contentbank UI.
+- Upload eXeLearning packages to the content bank: native `.elpx` projects and
+  HTML5 `.zip` web exports.
+- Render the package inline in the content bank visualizer (sandboxed iframe
+  serving the package `index.html` and its assets).
+- Keep the original package available for **download** and **copy**.
+- Use the package screenshot as the content thumbnail when the export includes
+  one, falling back to the plugin icon otherwise.
+- Stores no personal data (null privacy provider).
 
 ## Accepted file types
 
-The plugin allows uploading SCORM packages in `.zip` format. Other file types, such as `.h5p`, are not supported.
+Both `.elpx` and `.zip` are accepted. The real marker is an `index.html` entry
+at the archive root, which every eXeLearning export includes; a `.zip` that is
+not an eXeLearning export (no `index.html` at the root) is rejected with a clear
+message. This plugin is a viewer/store — it does not grade interactive iDevices
+(use `mod_exelearning` for graded activities).
+
+## Compatibility
+
+The plugin's minimum required Moodle version is **Moodle 4.4 LTS**
+(`version.php`: `$plugin->requires = 2024042200`). Every push and pull request is
+verified through a CI matrix (`moodle-ci.yml`):
+
+| Moodle branch  | PHP      | Status                     |
+| -------------- | -------- | -------------------------- |
+| 4.4.x (LTS)    | 8.1, 8.3 | Supported (verified in CI) |
+| 4.5.x (LTS)    | 8.1, 8.3 | Supported (verified in CI) |
+| 5.0.x          | 8.2, 8.4 | Supported (verified in CI) |
+| 5.1.x          | 8.2, 8.4 | Supported (verified in CI) |
+
+Each branch is tested with PostgreSQL and MariaDB (rotated across PHP versions).
+If you find an incompatibility please open an issue at
+<https://github.com/ateeducacion/moodle-contenttype_exelearning/issues>.
+
+### Requirements
+
+* **Moodle**: 4.4 or later (CI-verified on 4.4, 4.5 LTS, 5.0 and 5.1).
+* **PHP**: 8.1 through 8.4 (any PHP supported by the Moodle release in use).
+* **Database**: PostgreSQL or MariaDB (CI-verified); any database supported by
+  Moodle should work.
+* **Browser**: any modern, evergreen browser with JavaScript enabled.
 
 ## Installation
 
-1. Clone this repository into the `contentbank/contenttype/` directory of your Moodle installation:
+> **Recommended:** install from a
+> [release ZIP](https://github.com/ateeducacion/moodle-contenttype_exelearning/releases).
+> Release ZIPs are produced by `release.yml` (or `make package RELEASE=X.Y.Z`)
+> and only contain the files Moodle actually needs.
 
-   ```bash
-   git clone https://github.com/YOUR_USERNAME/moodle-contenttype_scorm.git contentbank/contenttype/scorm
-   ```
+### Installing via uploaded ZIP file (recommended)
 
-2. Visit your Moodle site as an admin to complete the plugin installation.
+1. Download the latest ZIP from the
+   [Releases](https://github.com/ateeducacion/moodle-contenttype_exelearning/releases)
+   page.
+2. Log in to your Moodle site as an admin and go to
+   _Site administration > Plugins > Install plugins_.
+3. Upload the ZIP file. The plugin type should be detected automatically
+   (`contenttype`).
+4. Check the plugin validation report and finish the installation.
 
-3. Ensure that required capabilities are granted to roles such as `editingteacher` or `manager`.
+### Installing manually
 
-## Directory structure
+1. Download and extract the latest ZIP.
+2. Place the extracted contents in
+   `{your/moodle/dirroot}/contentbank/contenttype/exelearning`.
+3. Log in as an admin and go to _Site administration > Notifications_ (or run
+   `php admin/cli/upgrade.php`) to complete the installation.
 
-```
-moodle/contentbank/contenttype/scorm/
-├── classes/
-│   ├── contenttype.php
-│   └── content.php
-├── db/
-│   └── access.php
-├── lang/
-│   └── en/
-│       └── contenttype_scorm.php
-├── lib.php
-└── version.php
-```
+## Usage
+
+1. Open the **Content bank** (at system, category or course level).
+2. Click **Upload** and choose an `.elpx` or `.zip` eXeLearning package.
+3. Open the item to view it rendered inline. Use **Download** to get the
+   original package or **Copy** to reuse it.
 
 ## Capabilities
 
-The plugin defines its own capabilities:
+* `contenttype/exelearning:access` — access eXeLearning content in the content bank.
+* `contenttype/exelearning:upload` — upload new eXeLearning content.
 
-* `contenttype/scorm:addinstance` — controls who can upload SCORM packages to the Content Bank.
-* `contenttype/scorm:access` — grants access to the SCORM content type in the Content Bank.
+## Development
 
-## Requirements
+For local development, the Docker stack, `moodle-plugin-ci` usage, the CI matrix
+and packaging, see [DEVELOPMENT.md](DEVELOPMENT.md).
 
-* Moodle 4.0 or later
-* PHP 7.4 or later
+## Support
+
+For issues or suggestions, use the **Issues** section in the
+[GitHub repository](https://github.com/ateeducacion/moodle-contenttype_exelearning/issues).
 
 ## License
 
-GNU GPL v3 or later
+This project is licensed under **GPL v3**.
 
+Copyright 2025-2026 Área de Tecnología Educativa.
 
-## Development with Docker
+## Author and Contact
 
-This repository includes a `docker-compose.yml` and `Makefile` to help run Moodle
-with this plugin in a containerized environment. Copy `.env.dist` to `.env` and
-adjust the values if needed. Then use `make up` to start the containers or
-`make shell` to open a shell inside the Moodle container. The setup uses
-MariaDB 10.11, which meets Moodle 5.0 database requirements. The plugin folder
-from the host is mounted inside the Moodle container for easier debugging.
+Developed by the **Área de Tecnología Educativa** of the Government of the
+Canary Islands.
 
-## Packaging the plugin
-
-To create a release ZIP archive, use:
-
-```bash
-make package VERSION=1.0
-```
-
-The `.gitattributes` file ensures development files are excluded from the archive. This archive is also generated automatically when publishing a GitHub release via the included workflow.
+- **Email:** [ate.educacion@gobiernodecanarias.org](mailto:ate.educacion@gobiernodecanarias.org)
+- **Web:** [www3.gobiernodecanarias.org/medusa/ecoescuela/ate/](https://www3.gobiernodecanarias.org/medusa/ecoescuela/ate/)
